@@ -12,24 +12,10 @@ SHOULD_BUILD_BASE="$(grep -m 1 build_base build.yml | grep -o -P '(?<=").*(?=")'
 SHOULD_BUILD_SPARK="$(grep -m 1 build_spark build.yml | grep -o -P '(?<=").*(?=")')"
 SHOULD_BUILD_JUPYTERLAB="$(grep -m 1 build_jupyter build.yml | grep -o -P '(?<=").*(?=")')"
 
+SCALA_VERSION="$(grep -m 1 scala build.yml | grep -o -P '(?<=").*(?=")')"
 SPARK_VERSION="$(grep -m 1 spark build.yml | grep -o -P '(?<=").*(?=")')"
+HADOOP_VERSION="$(grep -m 1 hadoop build.yml | grep -o -P '(?<=").*(?=")')"
 JUPYTERLAB_VERSION="$(grep -m 1 jupyterlab build.yml | grep -o -P '(?<=").*(?=")')"
-
-SPARK_VERSION_MAJOR=${SPARK_VERSION:0:1}
-
-if [[ "${SPARK_VERSION_MAJOR}" == "2" ]]
-then
-  HADOOP_VERSION="2.7"
-  SCALA_VERSION="2.11.12"
-  SCALA_KERNEL_VERSION="0.6.0"
-elif [[ "${SPARK_VERSION_MAJOR}"  == "3" ]]
-then
-  HADOOP_VERSION="3.2"
-  SCALA_VERSION="2.12.10"
-  SCALA_KERNEL_VERSION="0.10.9"
-else
-  exit 1
-fi
 
 # ----------------------------------------------------------------------------------------------------------------------
 # -- Functions----------------------------------------------------------------------------------------------------------
@@ -37,29 +23,40 @@ fi
 
 function cleanContainers() {
 
-    container="$(docker ps -a | grep 'jupyterlab' | awk '{print $1}')"
-    docker stop "${container}"
-    docker rm "${container}"
-
-    container="$(docker ps -a | grep 'spark-worker' -m 1 | awk '{print $1}')"
-    while [ -n "${container}" ];
-    do
+    if [[ "${SHOULD_BUILD_JUPYTERLAB}" == "true" ]]
+    then
+      container="$(docker ps -a | grep 'jupyterlab' | awk '{print $1}')"
       docker stop "${container}"
       docker rm "${container}"
+    fi
+
+    if [[ "${SHOULD_BUILD_SPARK}" == "true" ]]
+    then
+
       container="$(docker ps -a | grep 'spark-worker' -m 1 | awk '{print $1}')"
-    done
+      while [ -n "${container}" ];
+      do
+        docker stop "${container}"
+        docker rm "${container}"
+        container="$(docker ps -a | grep 'spark-worker' -m 1 | awk '{print $1}')"
+      done
 
-    container="$(docker ps -a | grep 'spark-master' | awk '{print $1}')"
-    docker stop "${container}"
-    docker rm "${container}"
+      container="$(docker ps -a | grep 'spark-master' | awk '{print $1}')"
+      docker stop "${container}"
+      docker rm "${container}"
 
-    container="$(docker ps -a | grep 'spark-base' | awk '{print $1}')"
-    docker stop "${container}"
-    docker rm "${container}"
+      container="$(docker ps -a | grep 'spark-base' | awk '{print $1}')"
+      docker stop "${container}"
+      docker rm "${container}"
 
-    container="$(docker ps -a | grep 'base' | awk '{print $1}')"
-    docker stop "${container}"
-    docker rm "${container}"
+    fi
+
+    if [[ "${SHOULD_BUILD_BASE}" == "true" ]]
+    then
+      container="$(docker ps -a | grep 'base' | awk '{print $1}')"
+      docker stop "${container}"
+      docker rm "${container}"
+    fi
 
 }
 
@@ -107,19 +104,21 @@ function buildImages() {
       --build-arg spark_version="${SPARK_VERSION}" \
       --build-arg hadoop_version="${HADOOP_VERSION}" \
       -f docker/spark-base/Dockerfile \
-      -t spark-base:${SPARK_VERSION} .
+      -t spark-base:${SPARK_VERSION}-hadoop-${HADOOP_VERSION} .
 
     docker build \
       --build-arg build_date="${BUILD_DATE}" \
       --build-arg spark_version="${SPARK_VERSION}" \
+      --build-arg hadoop_version="${HADOOP_VERSION}" \
       -f docker/spark-master/Dockerfile \
-      -t spark-master:${SPARK_VERSION} .
+      -t spark-master:${SPARK_VERSION}-hadoop-${HADOOP_VERSION} .
 
     docker build \
       --build-arg build_date="${BUILD_DATE}" \
       --build-arg spark_version="${SPARK_VERSION}" \
+      --build-arg hadoop_version="${HADOOP_VERSION}" \
       -f docker/spark-worker/Dockerfile \
-      -t spark-worker:${SPARK_VERSION} .
+      -t spark-worker:${SPARK_VERSION}-hadoop-${HADOOP_VERSION} .
 
   fi
 
@@ -130,7 +129,6 @@ function buildImages() {
       --build-arg scala_version="${SCALA_VERSION}" \
       --build-arg spark_version="${SPARK_VERSION}" \
       --build-arg jupyterlab_version="${JUPYTERLAB_VERSION}" \
-      --build-arg scala_kernel_version="${SCALA_KERNEL_VERSION}" \
       -f docker/jupyterlab/Dockerfile \
       -t jupyterlab:${JUPYTERLAB_VERSION}-spark-${SPARK_VERSION} .
   fi
