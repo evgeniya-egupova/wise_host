@@ -1,0 +1,94 @@
+body {
+    padding: 0;
+    margin: 0;
+    position: relative;
+    overflow: hidden;
+}
+
+#map {
+    height: 100vh;
+    width: 100vw;
+}
+
+#sidebar {
+    height: 100vh;
+    width: 340px;
+    background-color: #fff;
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    right: 0;
+    z-index: 999;
+    transform: translateX(340px);
+    transition: transform 0.3s;
+    box-shadow: 0 2px 4px 2px rgba(0,0,0,.18), 0 3px 1px -2px rgba(0,0,0,.2), 0 1px 5px 0 rgba(0,0,0,.12);
+}
+
+.close-button {
+    position: absolute;
+    left: 18px;
+    top: 18px;
+    z-index: 99;
+}
+
+.close-button svg {
+    width: 20px;
+    cursor: pointer;
+    fill: #fff;
+}
+
+.content {
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    padding: 20px 32px;
+}
+
+.card-item {
+    display: flex;
+    align-items: center;
+    margin-bottom: 10px;
+}
+
+.card-item svg {
+    width: 24px;
+    margin-right: 16px;
+    margin-left: 20px;
+}
+
+.neighborhood svg {
+    opacity: 0.8;
+}
+
+.card-item .element {
+    max-width: 60%;
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+    margin-right: 16px;
+    font-size: 16px;
+    color: rgba(0,0,0,.54);
+}
+
+.mdl-card {
+    width: 340px;
+}
+
+.demo-card-wide > .mdl-card__title {
+    color: #fff;
+    height: 176px;
+    background: url('../assets/nyc-background.jpg') center / cover;
+}
+
+.mdl-card__supporting-text {
+    text-align: center;
+}
+
+.mdl-button--accent.mdl-button--accent.mdl-button--raised {
+    margin-top: 6px;
+    background-color: #3f51b5;
+}
+
+.app-loader {
+    display: none;
+}

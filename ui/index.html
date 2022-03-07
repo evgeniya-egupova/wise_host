@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
+    <link rel="stylesheet" href="https://code.getmdl.io/1.3.0/material.indigo-pink.min.css">
+    <link rel="stylesheet" href="./libs/getmdl-select/getmdl-select.min.css">
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css"
+    integrity="sha512-xodZBNTC5n17Xt2atTPuE1HxjVMSvLVW9ocqUKLsCC5CXdbqCmblAshOMAS6/keqq/sMZMZ19scR4PsZChSR7A=="
+    crossorigin=""/>
+    <link rel="stylesheet" href="./styles/styles.css">
+    <title>Appartment Price Prediction in NYC</title>
+</head>
+<body>
+
+    <div id="map"></div>
+    <div id="sidebar">
+
+        <div class="close-button">
+            <svg viewBox="0 0 14 16" id="close-icon">
+                <use xlink:href="./assets/cancel.svg#Capa_1"/>
+            </svg>
+        </div>
+
+        <div class="demo-card-wide mdl-card mdl-shadow--2dp">
+            <div class="mdl-card__title">
+                <h2 class="mdl-card__title-text">Welcome</h2>
+            </div>
+            <div class="mdl-card__supporting-text">
+                Apartment Price Prediction in New York City
+            </div>
+            <div class="mdl-card__actions mdl-card--border">
+                <div class="card-item coordinates">
+                    <svg viewBox="0 0 14 16" id="coordinates-icon">
+                        <use xlink:href="./assets/pointer.svg#Capa_2"/>
+                    </svg>
+                    <div id="coordinates-latitude" class="element"></div>
+                    <div id="coordinates-longtitude" class="element"></div>
+                </div>
+                <div class="card-item neighborhood-group">
+                    <svg viewBox="0 0 14 16" id="n-icon">
+                        <use xlink:href="./assets/neighborhood.svg#Capa_3"/>
+                    </svg>
+                    <div id="neighborhood_group" class="element"></div>
+                </div>
+
+                <div class="card-item neighborhood">
+                    <svg viewBox="0 0 14 16" id="n-2-icon">
+                        <use xlink:href="./assets/houses.svg#Capa_4"/>
+                    </svg>
+                    <div id="neighborhood" class="element"></div>
+                </div>
+            </div>
+        </div>
+
+          <div id="p2" class="mdl-progress mdl-js-progress mdl-progress__indeterminate app-loader"></div>
+
+        <div class="content">
+            <div>
+                <!-- Numeric Textfield with Floating Label -->
+                <form id="priceForm" action="#">
+                    <div class="mdl-textfield mdl-js-textfield getmdl-select">
+                        <input type="text" value="" class="mdl-textfield__input" id="sample2" readonly>
+                        <input type="hidden" value="" name="sample2">
+                        <i class="mdl-icon-toggle__label material-icons">keyboard_arrow_down</i>
+                        <label for="sample2" class="mdl-textfield__label">Room type</label>
+                        <ul for="sample2" class="mdl-menu mdl-menu--bottom-left mdl-js-menu">
+                            <li class="mdl-menu__item" data-val="Entire home/apt">Entire home/apt</li>
+                            <li class="mdl-menu__item" data-val="Private room">Private room</li>
+                            <li class="mdl-menu__item" data-val="Shared room">Shared room</li>
+                        </ul>
+                    </div>
+                    <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label">
+                        <input class="mdl-textfield__input" type="text" pattern="-?[0-9]*(\.[0-9]+)?" id="sample3">
+                        <label class="mdl-textfield__label" for="sample4">Minimum nights</label>
+                        <span class="mdl-textfield__error">Input is not a number!</span>
+                    </div>
+                    <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label">
+                        <input class="mdl-textfield__input" type="text" pattern="-?[0-9]*(\.[0-9]+)?" id="sample4">
+                        <label class="mdl-textfield__label" for="sample4">Availability</label>
+                        <span class="mdl-textfield__error">Input is not a number!</span>
+                    </div>
+                    <div class="mdl-textfield mdl-js-textfield">
+                        <textarea class="mdl-textfield__input" type="text" rows= "1" id="sample5" ></textarea>
+                        <label class="mdl-textfield__label" for="sample5">Your rental listing title...</label>
+                    </div>
+
+                    <!-- Accent-colored raised button with ripple -->
+                    <button id="get-price-button"
+                            class="mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect mdl-button--accent"
+                            type="button">
+                        Get Price
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <script defer src="https://code.getmdl.io/1.3.0/material.min.js"></script>
+    <script defer src="./libs/getmdl-select/getmdl-select.min.js"></script>
+    <script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"
+            integrity="sha512-XQoYMqMTK8LvdxXYG3nZ448hOEQiglfqkJs1NOQV44cWnUrBc8PkAOcXy20w0vlaXaVUearIOBhiXZ5V3ynxwA=="
+            crossorigin="">
+    </script>
+    <script src="https://cdn.rawgit.com/hayeswise/Leaflet.PointInPolygon/v1.0.0/wise-leaflet-pip.js"></script>
+    <script src="./libs/leaflet.ajax.min.js"></script>
+    <script defer type="module" src="./index.js"></script>
+</body>
+</html>
