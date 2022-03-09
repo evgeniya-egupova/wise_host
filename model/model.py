@@ -35,3 +35,16 @@ def train_one_hot_encoder(df, inputCols, outputCols, save_path='./', transform=T
     ohe_model.save(ohe_model_path)
 
     return ohe_model, df
+
+
+def train_models(df):
+    _, df = train_string_indexer(df,
+                                 inputCols=["neighbourhood_group", 'neighbourhood', 'room_type'],
+                                 outputCols=["neighbourhood_group_int", 'neighbourhood_int', 'room_type_int'],
+                                 save_path='/opt/workspace',
+                                 transform=True)
+    _, df = train_one_hot_encoder(df,
+                                  inputCols=["neighbourhood_group_int", 'neighbourhood_int', 'room_type_int'],
+                                  outputCols=["neighbourhood_group_vec", 'neighbourhood_vec', 'room_type_vec'],
+                                  save_path='/opt/workspace',
+                                  transform=True)
