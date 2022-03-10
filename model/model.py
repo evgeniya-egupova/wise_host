@@ -5,6 +5,8 @@ from pyspark.ml.feature import OneHotEncoder
 from pyspark.ml.feature import OneHotEncoderModel
 from pyspark.ml.feature import StringIndexer
 from pyspark.ml.feature import VectorAssembler
+from pyspark.ml.feature import VectorIndexer
+from pyspark.ml.feature import VectorIndexerModel
 
 LR_MODEL_PATH = 'lr_model'
 STRING_INDEXER_PATH = 'stringIndexer'
@@ -58,6 +60,22 @@ def train_vector_assembler(df, target, inputCols=None, outputCol='features', sav
     return vector_assembler, df
 
 
+def train_feature_indexer(df, target, inputCol='features', outputCol='features_vec',
+                          save_path='./', maxCategories=230, transform=True):
+    feature_indexer = VectorIndexer(inputCol=inputCol,
+                                    outputCol=inputCol,
+                                    maxCategories=maxCategories).fit(df)
+    if transform:
+        df = feature_indexer.transform(df)
+        df = df.select([outputCol, target])
+        df.select(outputCol).show(5, False)
+
+    feature_indexer_path = os.path.join(save_path)
+    feature_indexer.save(feature_indexer_path)
+
+    return feature_indexer, df
+
+
 def train_models(df):
     _, df = train_string_indexer(df,
                                  inputCols=["neighbourhood_group", 'neighbourhood', 'room_type'],
@@ -74,3 +92,7 @@ def train_models(df):
                                    outputCol='features',
                                    save_path='/opt/workspace',
                                    transform=True)
+    _, df = train_feature_indexer(df,
+                                  target='price_num',
+                                  save_path='/opt/workspace',
+                                  transform=True)
