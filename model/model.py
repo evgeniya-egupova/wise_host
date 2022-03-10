@@ -76,23 +76,27 @@ def train_feature_indexer(df, target, inputCol='features', outputCol='features_v
     return feature_indexer, df
 
 
-def train_models(df):
-    _, df = train_string_indexer(df,
-                                 inputCols=["neighbourhood_group", 'neighbourhood', 'room_type'],
-                                 outputCols=["neighbourhood_group_int", 'neighbourhood_int', 'room_type_int'],
-                                 save_path='/opt/workspace',
-                                 transform=True)
-    _, df = train_one_hot_encoder(df,
-                                  inputCols=["neighbourhood_group_int", 'neighbourhood_int', 'room_type_int'],
-                                  outputCols=["neighbourhood_group_vec", 'neighbourhood_vec', 'room_type_vec'],
-                                  save_path='/opt/workspace',
-                                  transform=True)
-    _, df = train_vector_assembler(df,
-                                   target='price_num',
-                                   outputCol='features',
-                                   save_path='/opt/workspace',
-                                   transform=True)
-    _, df = train_feature_indexer(df,
-                                  target='price_num',
-                                  save_path='/opt/workspace',
-                                  transform=True)
+def train_models(df, save_path='/opt/workspace'):
+    string_indexer, df = train_string_indexer(
+        df,
+        inputCols=["neighbourhood_group", 'neighbourhood', 'room_type'],
+        outputCols=["neighbourhood_group_int", 'neighbourhood_int', 'room_type_int'],
+        save_path=save_path,
+        transform=True)
+
+    one_hot_encoder, df = train_one_hot_encoder(
+        df,
+        inputCols=["neighbourhood_group_int", 'neighbourhood_int', 'room_type_int'],
+        outputCols=["neighbourhood_group_vec", 'neighbourhood_vec', 'room_type_vec'],
+        save_path=save_path,
+        transform=True)
+
+    vector_assembler, df = train_vector_assembler(df,
+                                                  target='price_num',
+                                                  outputCol='features',
+                                                  save_path=save_path,
+                                                  transform=True)
+    feature_indexer, df = train_feature_indexer(df,
+                                                target='price_num',
+                                                save_path=save_path,
+                                                transform=True)
