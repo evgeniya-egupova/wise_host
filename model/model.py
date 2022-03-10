@@ -1,11 +1,15 @@
 import os
+from copy import copy
 
+from pyspark.ml.feature import OneHotEncoder
+from pyspark.ml.feature import OneHotEncoderModel
 from pyspark.ml.feature import StringIndexer
-from pyspark.ml.feature import OneHotEncoder, OneHotEncoderModel
+from pyspark.ml.feature import VectorAssembler
 
 LR_MODEL_PATH = 'lr_model'
 STRING_INDEXER_PATH = 'stringIndexer'
 OHE_GOT_ENCODER_PATH = 'ohe'
+VECTOR_ASSEMBLER_PATH = 'vectorAssembler'
 
 
 def train_string_indexer(df, inputCols, outputCols, save_path='./', transform=True):
@@ -37,6 +41,23 @@ def train_one_hot_encoder(df, inputCols, outputCols, save_path='./', transform=T
     return ohe_model, df
 
 
+def train_vector_assembler(df, target, inputCols=None, outputCol='features', save_path='./', transform=True):
+    inputCols = inputCols or copy(df.columns)
+    inputCols.remove(target)
+    vector_assembler = VectorAssembler(inputCols=inputCols,
+                                       outputCol=outputCol)
+    if transform:
+        df = vector_assembler.transform(df)
+        df = df.select([outputCol, target])
+        df.show(5, False)
+        df.printSchema()
+
+    vector_assembler_path = os.path.join(save_path, VECTOR_ASSEMBLER_PATH)
+    vector_assembler.save(vector_assembler_path)
+
+    return vector_assembler, df
+
+
 def train_models(df):
     _, df = train_string_indexer(df,
                                  inputCols=["neighbourhood_group", 'neighbourhood', 'room_type'],
@@ -48,3 +69,8 @@ def train_models(df):
                                   outputCols=["neighbourhood_group_vec", 'neighbourhood_vec', 'room_type_vec'],
                                   save_path='/opt/workspace',
                                   transform=True)
+    _, df = train_vector_assembler(df,
+                                   target='price_num',
+                                   outputCol='features',
+                                   save_path='/opt/workspace',
+                                   transform=True)
