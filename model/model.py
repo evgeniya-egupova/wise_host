@@ -4,14 +4,17 @@ from copy import copy
 from pyspark.ml.feature import OneHotEncoder
 from pyspark.ml.feature import OneHotEncoderModel
 from pyspark.ml.feature import StringIndexer
+from pyspark.ml.feature import StringIndexerModel
 from pyspark.ml.feature import VectorAssembler
 from pyspark.ml.feature import VectorIndexer
 from pyspark.ml.feature import VectorIndexerModel
+from pyspark.ml.regression import LinearRegressionModel
 
 LR_MODEL_PATH = 'lr_model'
 STRING_INDEXER_PATH = 'stringIndexer'
-OHE_GOT_ENCODER_PATH = 'ohe'
+ONE_HOT_ENCODER_PATH = 'ohe'
 VECTOR_ASSEMBLER_PATH = 'vectorAssembler'
+FEATURE_INDEXER_PATH = 'featureIndexer'
 
 
 def train_string_indexer(df, inputCols, outputCols, save_path='./', transform=True):
@@ -37,7 +40,7 @@ def train_one_hot_encoder(df, inputCols, outputCols, save_path='./', transform=T
         encoded = ohe_model.transform(df)
         df = encoded.drop(*inputCols)
 
-    ohe_model_path = os.path.join(save_path, OHE_GOT_ENCODER_PATH)
+    ohe_model_path = os.path.join(save_path, ONE_HOT_ENCODER_PATH)
     ohe_model.save(ohe_model_path)
 
     return ohe_model, df
@@ -100,3 +103,22 @@ def train_models(df, save_path='/opt/workspace'):
                                                 target='price_num',
                                                 save_path=save_path,
                                                 transform=True)
+    lr_model = None
+
+    return string_indexer, one_hot_encoder, vector_assembler, feature_indexer, lr_model
+
+
+def load_models(load_path='/opt/workspace'):
+    model_path = os.path.join(load_path, LR_MODEL_PATH)
+    vector_assembler_path = os.path.join(load_path, VECTOR_ASSEMBLER_PATH)
+    ohe_model_path = os.path.join(load_path, ONE_HOT_ENCODER_PATH)
+    string_indexer_path = os.path.join(load_path, STRING_INDEXER_PATH)
+    feature_indexer_path = os.path.join(load_path, FEATURE_INDEXER_PATH)
+
+    feature_indexer = VectorIndexerModel.load(feature_indexer_path)
+    vector_assembler = VectorAssembler.load(vector_assembler_path)
+    one_hot_encoder = OneHotEncoderModel.load(ohe_model_path)
+    string_indexer = StringIndexerModel.load(string_indexer_path)
+    lr_model = LinearRegressionModel.load(model_path)
+
+    return string_indexer, one_hot_encoder, vector_assembler, feature_indexer, lr_model
